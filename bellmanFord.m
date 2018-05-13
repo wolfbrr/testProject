@@ -1,51 +1,48 @@
-function [distanceToPredecessor, nodePredecessor, cycleNodes, isCycleNotFnd] = bellmanFord(weightedGraph)
-%Belman-Ford
-iu      = 1;
-iv      = 2;
-iSell   = 4;
-iBuy    = 3;
+function [distanceToPredecessor, nodePredecessor, negativeCycleNodes, isCycleNotFnd] = bellmanFord(weightedGraph)
 
-nodesNumber              = max(weightedGraph.iu);
-edgesNumber              = height(weightedGraph);
-nodePredecessor          = 0*ones(nodesNumber,1);
-distanceToPredecessor    = inf*ones(nodesNumber, 1);
+numberOfNodes            = max(weightedGraph.iu);
+numberOfEdges            = height(weightedGraph);
+nodePredecessor          = zeros(numberOfNodes,1);
+nodeIndex                = zeros(numberOfNodes, 1);
+distanceToPredecessor    = inf(numberOfNodes, 1);
 distanceToPredecessor(1) = 0;
-cycleNodes               = zeros(nodesNumber, 1);
-nodeIndexes              = zeros(nodesNumber, 1);
+negativeCycleNodes       = zeros(numberOfNodes, 1);
 isCycleNotDefined        = true;
 isCycleNotFnd            = true;
 
-for node = 1:nodesNumber-1
+%% first run of BF
+for node = 1:numberOfNodes-1
     prevDistance = distanceToPredecessor;
-    for edge = 1:edgesNumber
+    for edge = 1:numberOfEdges
         u = weightedGraph.iu(edge);
         v = weightedGraph.iv(edge);
-        w = weightedGraph.askPrice(edge);
+        w = weightedGraph.askLogRate(edge);
         [~, distanceToPredecessor, nodePredecessor] = relax( u, v, w, distanceToPredecessor, prevDistance, nodePredecessor);
     end
 end
 
+%% one more run of BF to see if there is a condition for NC
 prevDistance = distanceToPredecessor;
-for edge = 1:edgesNumber
+for edge = 1:numberOfEdges
     u = weightedGraph.iu(edge);
     v = weightedGraph.iv(edge);
-    w = weightedGraph.askPrice(edge);
+    w = weightedGraph.askLogRate(edge);
     [isRelaxed, distanceToPredecessor, ~] = relax( u, v, w, distanceToPredecessor, prevDistance, nodePredecessor);
     if isRelaxed
         sprintf('negative cycle detection on node %d', v)
         % find first cycle index
-        nodeIndexes(v)  = v;
+        nodeIndex(v)  = v;
         while isCycleNotFnd
             v               = nodePredecessor(v);
-            isCycleNotFnd   = ~nodeIndexes(v);
-            nodeIndexes(v)  = v;
+            isCycleNotFnd   = ~nodeIndex(v);
+            nodeIndex(v)  = v;
         end
         
-        cycleNodes(v)       = v; % first cycle node
+        negativeCycleNodes(v)       = v; % first cycle node
         while isCycleNotDefined
             v                   = nodePredecessor(v);
-            isCycleNotDefined   = ~cycleNodes(v);
-            cycleNodes(v)       = v;
+            isCycleNotDefined   = ~negativeCycleNodes(v);
+            negativeCycleNodes(v)       = v;
         end
         break
     end
