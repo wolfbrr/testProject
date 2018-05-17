@@ -1,4 +1,4 @@
-function [bookTicker, symbolPrice] = loadFinanceData()
+function [assetsGraph, bookTicker, symbolPrice] = loadFinanceData()
 bookTicker     = webread('https://api.binance.com/api/v3/ticker/bookTicker');%?symbol=ETHBTC?symbol=LTCBTC');
 bookTicker                  = struct2table(bookTicker);
 bookTicker.askPrice         = cellfun(@str2num, bookTicker.askPrice);
@@ -26,3 +26,15 @@ for i = 1:height(symbolsInfo)
     bookTicker.iu(ind) = symbolsInfo.iu(i);
     bookTicker.iv(ind) = symbolsInfo.iv(i);
 end
+
+%% calculate connection in opossite direction
+bookTicker2             = bookTicker;
+bookTicker2.iu          = bookTicker.iv;
+bookTicker2.iv          = bookTicker.iu;
+bookTicker2.iv          = bookTicker.iu;
+bookTicker2.iv          = bookTicker.iu;
+bookTicker2.askPrice    = bookTicker.bidPrice;
+bookTicker2.bidPrice    = bookTicker.askPrice;
+bookTicker2.askLogRate  = bookTicker.bidLogRate;
+bookTicker2.bidLogRate  = bookTicker.askLogRate;
+assetsGraph = [bookTicker;bookTicker2]

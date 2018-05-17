@@ -10,7 +10,7 @@ if isCycleNotFnd
         bookTicker2.bidLogRate(i) = bookTicker2.askLogRate(i);
         [distance, predecessor, cycleNodes, isCycleNotFnd2] = bellmanFord(bookTicker2);
         if ~isCycleNotFnd2
-            disp('arbitrage possibility is found');
+            disp('arbitrage opportunity is found');
         end
     end
 end
