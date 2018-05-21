@@ -29,20 +29,3 @@ data_for_test = array2table(data_for_test, 'VariableNames',{'iu','iv','bidLogRat
 [distance, predecessor, cycleNodes, isCycleNotFnd] = findArbitrage(data_for_test);
 
 assert(isequal(cycleNodes,[0;0;0;0;5;6;7;0]), 'wrong NC detected')
-%% fee test
-clear
-dataForTest.symbol = [{'ab'}, {'ba'}]';
-dataForTest.askPrice = [1 1.05]';
-dataForTest.askLogRate = -log(dataForTest.askPrice);
-
-dataForTest.bidPrice = [1.05 1]';
-dataForTest.bidLogRate = -log(dataForTest.bidPrice);
-dataForTest.iu = [1 2]';
-dataForTest.iv = [2 1]';
-dataForTest = struct2table(dataForTest);
-
-[distance, predecessor, cycleNodes, isCycleNotFnd] = findArbitrage(dataForTest);
-
-
-dataForTest = update_graph_with_trade_fee(dataForTest, 0.5);
-[distance, predecessor, cycleNodes, isCycleNotFnd] = findArbitrage(dataForTest);
